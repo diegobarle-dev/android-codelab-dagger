@@ -17,10 +17,11 @@
 package com.example.android.dagger.storage
 
 import android.content.Context
+import javax.inject.Inject
 
-class SharedPreferencesStorage(context: Context) : Storage {
+class SharedPreferencesStorage @Inject constructor(fileName: String, context: Context) : Storage { //fileName: String is added for the sake of testing Qualifiers
 
-    private val sharedPreferences = context.getSharedPreferences("Dagger", Context.MODE_PRIVATE)
+    private val sharedPreferences = context.getSharedPreferences(fileName, Context.MODE_PRIVATE)
 
     override fun setString(key: String, value: String) {
         with(sharedPreferences.edit()) {

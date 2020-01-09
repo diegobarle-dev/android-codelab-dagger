@@ -26,10 +26,14 @@ import com.example.android.dagger.R
 import com.example.android.dagger.login.LoginActivity
 import com.example.android.dagger.registration.RegistrationActivity
 import com.example.android.dagger.settings.SettingsActivity
+import com.example.android.dagger.user.UserManager
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var mainViewModel: MainViewModel
+    // @Inject annotated fields will be provided by Dagger
+    @Inject
+    lateinit var mainViewModel: MainViewModel
 
     /**
      * If the User is not registered, RegistrationActivity will be launched,
@@ -39,9 +43,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val userManager = (application as MyApplication).userManager
+        // Grab userManager from appComponent to check if the user is logged in or not
+        val userManager = (application as MyApplication).appComponent.userManager()
         if (!userManager.isUserLoggedIn()) {
-            if (!userManager.isUserRegistered()) {
+            if (!userManager.isUserLoggedIn()) {
                 startActivity(Intent(this, RegistrationActivity::class.java))
                 finish()
             } else {
@@ -50,8 +55,9 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             setContentView(R.layout.activity_main)
-
-            mainViewModel = MainViewModel(userManager.userDataRepository!!)
+            // 3) If the MainActivity needs to be displayed, we get the UserComponent
+            // from the application graph and gets this Activity injected
+            userManager.userComponent!!.inject(this)
             setupViews()
         }
     }
